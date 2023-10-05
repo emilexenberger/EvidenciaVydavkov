@@ -48,7 +48,7 @@ public class GUI {
         // Combobox - Kategoria
         String[] KategoriaOptions = {"POTRAVINY", "PHM", "OBLEČENIE", "KONÍČKY", "INÉ"};
         JComboBox<String> cmbKategoria = new JComboBox<>(KategoriaOptions);
-        cmbKategoria.setBounds(190, 103, 100, 20);
+        cmbKategoria.setBounds(190, 103, 200, 30);
         panel.add(cmbKategoria);
 
         // Label - Datum
@@ -60,11 +60,26 @@ public class GUI {
         UtilDateModel model = new UtilDateModel();
         JDatePanelImpl datePanel = new JDatePanelImpl(model);
         JDatePickerImpl datePicker = new JDatePickerImpl(datePanel);
-        datePicker.setBounds(190, 143, 150, 30);
+        datePicker.setBounds(190, 143, 200, 30);
         panel.add(datePicker);
 
         // Display
         hlavneOkno.pack();
         hlavneOkno.setVisible(true);
+
+        // Label - Zoznam vydavkov
+        JLabel lblZoznamVydavkov = new JLabel("Zoznam výdavkov");
+        lblZoznamVydavkov.setBounds(450, 23, 150, 20);
+        panel.add(lblZoznamVydavkov);
+
+        // List - Zoznam vydavkov
+        JList lstZoznamVydavkov = new JList();
+
+        // ScrollPane - Zoznam vydavkov
+        JScrollPane scpName = new JScrollPane(lstZoznamVydavkov);
+        scpName.setBounds(400, 43, 330, 300);
+        scpName.add(lstZoznamVydavkov);
+        panel.add(scpName);
+
     }
 }
