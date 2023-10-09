@@ -90,11 +90,10 @@ public class GUI {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
+                    // Vyplnime udaje podla vybraneho riadku
                     try {
-
                         String vybranyVydavok = lstZoznamVydavkov.getSelectedValue().toString();
                         String jednotliveUdajeVydavku[] = vybranyVydavok.split(" ");
-                        System.out.println(Arrays.toString(jednotliveUdajeVydavku));
 
                         // Vyplnime datum
                         String vybranyDatum = jednotliveUdajeVydavku[3];
@@ -126,9 +125,7 @@ public class GUI {
 
         btnPridajZanam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
-                String date = simpleDateFormat.format(datePicker.getModel().getValue());
-                modelZoznamu.addElement(txtNazovVydavku.getText() + " " + txtCena.getText() + " " + cmbKategoria.getSelectedItem() + " " + date);
+                zobrazDialog(hlavneOkno, modelZoznamu, true, lstZoznamVydavkov);
             }
         });
         panel.add(btnPridajZanam);
@@ -139,9 +136,10 @@ public class GUI {
 
         btnUpravZaznam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
-                String date = simpleDateFormat.format(datePicker.getModel().getValue());
-                modelZoznamu.set(indexVydavku, txtNazovVydavku.getText() + " " + txtCena.getText() + " " + cmbKategoria.getSelectedItem() + " " + date);
+                zobrazDialog(hlavneOkno, modelZoznamu, false, lstZoznamVydavkov);
+//                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
+//                String date = simpleDateFormat.format(datePicker.getModel().getValue());
+//                modelZoznamu.set(indexVydavku, txtNazovVydavku.getText() + " " + txtCena.getText() + " " + cmbKategoria.getSelectedItem() + " " + date);
             }
         });
         panel.add(btnUpravZaznam);
@@ -172,5 +170,113 @@ public class GUI {
         // Display
         hlavneOkno.pack();
         hlavneOkno.setVisible(true);
+    }
+
+    private static void zobrazDialog(JFrame hlavneOkno, DefaultListModel modelZoznamu, boolean novyZanam, JList lstZoznamVydavkov) {
+        // Frame
+        JDialog jDialog = new JDialog(hlavneOkno, true);
+        jDialog.setMinimumSize(new Dimension(350, 225));
+        jDialog.setLocationRelativeTo(null); // vycentrovanie okna
+        jDialog.setResizable(false); // Zakazeme zmenu rozmerov okna
+
+        // Panel
+        JPanel panel = new JPanel();
+        panel.setLayout(null); // layout pre panel bude null, cize prazdny
+        jDialog.setContentPane(panel); // my dany panel pridame do frame
+
+        int x = 10, y = 10;
+
+        // Label - Nazov vydavku
+        JLabel labelNazovVydavku = new JLabel("Názov výdavku", SwingConstants.RIGHT);
+        labelNazovVydavku.setBounds(x, y, 100, 20);
+        panel.add(labelNazovVydavku);
+
+        // JText - Nazov vydavku
+        JTextField txtNazovVydavku = new JTextField();
+        txtNazovVydavku.setBounds(x + 105, y - 5, 200, 30); // x, y, sirka, vyska
+        panel.add(txtNazovVydavku);
+
+        // Label - Cena
+        JLabel labelCena = new JLabel("Cena", SwingConstants.RIGHT);
+        labelCena.setBounds(x, y + 35, 100, 20);
+        panel.add(labelCena);
+
+        // JText - Cena
+        JTextField txtCena = new JTextField();
+        txtCena.setBounds(x + 105, y + 30, 200, 30); // x, y, sirka, vyska
+        panel.add(txtCena);
+
+        // Label - Kategoria
+        JLabel labelKategoria = new JLabel("Kategória", SwingConstants.RIGHT);
+        labelKategoria.setBounds(x, y + 70, 100, 20);
+        panel.add(labelKategoria);
+
+        // Combobox - Kategoria
+        String[] KategoriaOptions = {"POTRAVINY", "PHM", "OBLEČENIE", "KONÍČKY", "INÉ"};
+        JComboBox<String> cmbKategoria = new JComboBox<>(KategoriaOptions);
+        cmbKategoria.setBounds(x + 105, y + 65, 200, 30);
+        panel.add(cmbKategoria);
+
+        // Label - Datum
+        JLabel labelDatum = new JLabel("Dátum", SwingConstants.RIGHT);
+        labelDatum.setBounds(x, y + 100, 100, 20);
+        panel.add(labelDatum);
+
+        // Date picker
+        UtilDateModel model = new UtilDateModel();
+        JDatePanelImpl datePanel = new JDatePanelImpl(model);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel);
+        datePicker.setBounds(x + 105, y + 100, 200, 30);
+        panel.add(datePicker);
+
+        // Vypnime udaje
+        if (!novyZanam) {
+            try {
+                String vybranyVydavok = lstZoznamVydavkov.getSelectedValue().toString();
+                String jednotliveUdajeVydavku[] = vybranyVydavok.split(" ");
+
+                // Vyplnime datum
+                String vybranyDatum = jednotliveUdajeVydavku[3];
+                String slovakDate[] = vybranyDatum.split("\\.");
+                model.setDate(Integer.parseInt(slovakDate[2]), Integer.parseInt(slovakDate[1]) - 1, Integer.parseInt(slovakDate[0]));
+                model.setSelected(true);
+
+                // Naplnime jednotlive texfields
+                txtNazovVydavku.setText(jednotliveUdajeVydavku[0]);
+                txtCena.setText(jednotliveUdajeVydavku[1]);
+                cmbKategoria.setSelectedItem(jednotliveUdajeVydavku[2]);
+
+                indexVydavku = lstZoznamVydavkov.getSelectedIndex();
+            } catch (NullPointerException e1) {
+                // TODO Spracovat
+            }
+        }
+
+        // Button - Uloz
+        JButton btnUloz = new JButton("Ulož"); // tlacidlo
+        btnUloz.setBounds(x + 125, y + 140, 80, 20); // x, y, sirka, vyska
+
+        btnUloz.addActionListener(new ActionListener() { // sluzi na "odchytenie" cize spracovanie zatlacenia tlacidla
+            public void actionPerformed(ActionEvent e) {
+                if (novyZanam) {
+                    // Pridaj zaznam
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                    String date = simpleDateFormat.format(datePicker.getModel().getValue());
+                    modelZoznamu.addElement(txtNazovVydavku.getText() + " " + txtCena.getText() + " " + cmbKategoria.getSelectedItem() + " " + date);
+                } else {
+                    // TODO naplnime aktualny zoznam upravenymi hodnotami
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                    String date = simpleDateFormat.format(datePicker.getModel().getValue());
+                    modelZoznamu.set(indexVydavku, txtNazovVydavku.getText() + " " + txtCena.getText() + " " + cmbKategoria.getSelectedItem() + " " + date);
+                }
+
+                jDialog.dispatchEvent(new WindowEvent(jDialog, WindowEvent.WINDOW_CLOSING)); // Korektne zatvori celu SWING aplikaciu
+            }
+        });
+        panel.add(btnUloz);
+
+        // Display
+        jDialog.pack();
+        jDialog.setVisible(true);
     }
 }
