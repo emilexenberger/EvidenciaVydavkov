@@ -12,12 +12,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 
 public class GUI {
-    private static int indexVydavku;
+    private int indexVydavku;
 
-    public static void main(String[] args) {
+    public GUI() {
+        init();
+    }
+
+    public void init() {
         // Frame
         JFrame hlavneOkno = new JFrame("Evidencia výdavkov"); // vytvorime okno
         hlavneOkno.setMinimumSize(new Dimension(800, 500));
@@ -90,26 +93,7 @@ public class GUI {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    // Vyplnime udaje podla vybraneho riadku
-                    try {
-                        String vybranyVydavok = lstZoznamVydavkov.getSelectedValue().toString();
-                        String jednotliveUdajeVydavku[] = vybranyVydavok.split(" ");
-
-                        // Vyplnime datum
-                        String vybranyDatum = jednotliveUdajeVydavku[3];
-                        String slovakDate[] = vybranyDatum.split("\\.");
-                        model.setDate(Integer.parseInt(slovakDate[2]), Integer.parseInt(slovakDate[1]) - 1, Integer.parseInt(slovakDate[0]));
-                        model.setSelected(true);
-
-                        // Naplnime jednotlive texfields
-                        txtNazovVydavku.setText(jednotliveUdajeVydavku[0]);
-                        txtCena.setText(jednotliveUdajeVydavku[1]);
-                        cmbKategoria.setSelectedItem(jednotliveUdajeVydavku[2]);
-
-                        indexVydavku = lstZoznamVydavkov.getSelectedIndex();
-                    } catch (NullPointerException e1) {
-                        // TODO Spracovat
-                    }
+                    vyplnPolozky(lstZoznamVydavkov, model, txtNazovVydavku, txtCena, cmbKategoria);
                 }
             }
         });
@@ -172,7 +156,30 @@ public class GUI {
         hlavneOkno.setVisible(true);
     }
 
-    private static void zobrazDialog(JFrame hlavneOkno, DefaultListModel modelZoznamu, boolean novyZanam, JList lstZoznamVydavkov) {
+    private void vyplnPolozky(JList lstZoznamVydavkov, UtilDateModel model, JTextField txtNazovVydavku, JTextField txtCena, JComboBox<String> cmbKategoria) {
+        // Vyplnime udaje podla vybraneho riadku
+        try {
+            String vybranyVydavok = lstZoznamVydavkov.getSelectedValue().toString();
+            String jednotliveUdajeVydavku[] = vybranyVydavok.split(" ");
+
+            // Vyplnime datum
+            String vybranyDatum = jednotliveUdajeVydavku[3];
+            String slovakDate[] = vybranyDatum.split("\\.");
+            model.setDate(Integer.parseInt(slovakDate[2]), Integer.parseInt(slovakDate[1]) - 1, Integer.parseInt(slovakDate[0]));
+            model.setSelected(true);
+
+            // Naplnime jednotlive texfields
+            txtNazovVydavku.setText(jednotliveUdajeVydavku[0]);
+            txtCena.setText(jednotliveUdajeVydavku[1]);
+            cmbKategoria.setSelectedItem(jednotliveUdajeVydavku[2]);
+
+            indexVydavku = lstZoznamVydavkov.getSelectedIndex();
+        } catch (NullPointerException e1) {
+            // TODO Spracovat
+        }
+    }
+
+    private void zobrazDialog(JFrame hlavneOkno, DefaultListModel modelZoznamu, boolean novyZanam, JList lstZoznamVydavkov) {
         // Frame
         JDialog jDialog = new JDialog(hlavneOkno, true);
         jDialog.setMinimumSize(new Dimension(350, 225));
@@ -231,25 +238,7 @@ public class GUI {
 
         // Vypnime udaje
         if (!novyZanam) {
-            try {
-                String vybranyVydavok = lstZoznamVydavkov.getSelectedValue().toString();
-                String jednotliveUdajeVydavku[] = vybranyVydavok.split(" ");
-
-                // Vyplnime datum
-                String vybranyDatum = jednotliveUdajeVydavku[3];
-                String slovakDate[] = vybranyDatum.split("\\.");
-                model.setDate(Integer.parseInt(slovakDate[2]), Integer.parseInt(slovakDate[1]) - 1, Integer.parseInt(slovakDate[0]));
-                model.setSelected(true);
-
-                // Naplnime jednotlive texfields
-                txtNazovVydavku.setText(jednotliveUdajeVydavku[0]);
-                txtCena.setText(jednotliveUdajeVydavku[1]);
-                cmbKategoria.setSelectedItem(jednotliveUdajeVydavku[2]);
-
-                indexVydavku = lstZoznamVydavkov.getSelectedIndex();
-            } catch (NullPointerException e1) {
-                // TODO Spracovat
-            }
+            vyplnPolozky(lstZoznamVydavkov, model, txtNazovVydavku, txtCena, cmbKategoria);
         }
 
         // Button - Uloz
